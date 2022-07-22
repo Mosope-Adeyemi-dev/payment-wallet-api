@@ -1,0 +1,28 @@
+{
+    "extends": [
+        "prettier",
+        "plugin:node/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 13
+    },
+    "plugins": [
+        "prettier"
+    ],
+    "rules": {
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            },
+            { "singleQuote": true }
+        ],
+        "no-unused-vars": "warn",
+        "no-console": "off",
+        "func-names": "warn",
+        "no-process-exit": "off",
+        "object-shorthand": "off",
+        "class-methods-use-this": "off",
+        "camelcase":"warn"
+    }
+}
