@@ -6,7 +6,7 @@ const bankAccountSchema = new mongoose.Schema({
   accountNumber: { type: Number, required: true },
 });
 
-const UserSchema = new Schema(
+const vendorSchema = new Schema(
   {
     lastname: { type: String, trim: true },
     firstname: { type: String, trim: true },
@@ -26,17 +26,18 @@ const UserSchema = new Schema(
     bankAccounts: [bankAccountSchema],
     pin: {
       type: Number,
-      required: true,
       trim: true,
       min: [4, 'Pin too short, 4 digits required'],
       max: [4, 'Pin too long'],
     },
-    username: { type: String, required: true, unique: true },
+    username: { type: String, unique: true },
+    offeredService: { type: String, required: true },
+    isVerifiedVendor: { type: Boolean, default: false },
   },
   {
     timestamps: true,
   }
 );
 
-const User = mongoose.model('user', UserSchema);
-module.exports = User;
+const VendorModel = mongoose.model('vendor', vendorSchema);
+module.exports = VendorModel;
