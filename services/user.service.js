@@ -60,11 +60,4 @@ class User {
   }
 }
 
-const testUser = new User(
-  'mosope',
-  'adeyemi',
-  'mosope48@gmail.com',
-  'Qwerty202'
-);
-// console.log(testUser.createUserAccount());
 module.exports = User;
