@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const Customer = require('../models/user.model');
-const VendorModel = require('../models/vendor.model');
 const { translateError } = require('../utils/mongo_helper');
 const jwt = require('jsonwebtoken');
+
 class User {
   constructor(email) {
     this.email = email;
@@ -54,38 +54,16 @@ class User {
   async validatePassword(formPassword, dbPassword) {
     return await bcrypt.compare(formPassword, dbPassword);
   }
-}
 
-class Vendor extends User {
-  constructor(email) {
-    super(email);
-  }
-
-  async createUserAccount(firstname, lastname, password, offeredService) {
+  async updateUsername(id, username) {
     try {
-      const newVendor = new VendorModel({
-        firstname,
-        lastname,
-        email: this.email,
-        password: await this.hashedPassword(password),
-        offeredService,
-      });
-      if (await newVendor.save()) {
-        return [true, newVendor];
-      }
-    } catch (error) {
-      return [false, translateError(error)];
-    }
-  }
-
-  async authenticateUser(password) {
-    try {
-      const foundUser = await VendorModel.findOne({ email: this.email });
-      if (!foundUser) {
-        return [false];
-      }
-      if (await this.validatePassword(password, foundUser.password)) {
-        return [true, await this.signJwt(foundUser._id)];
+      const updatedUser = await Customer.findByIdAndUpdate(
+        id,
+        { $set: { username } },
+        { new: true }
+      );
+      if (updatedUser) {
+        return [true, updatedUser];
       }
       return [false];
     } catch (error) {
@@ -93,7 +71,5 @@ class Vendor extends User {
     }
   }
 }
-module.exports = {
-  User,
-  Vendor,
-};
+
+module.exports = User;

@@ -30,7 +30,7 @@ const vendorSchema = new Schema(
       min: [4, 'Pin too short, 4 digits required'],
       max: [4, 'Pin too long'],
     },
-    username: { type: String, unique: true },
+    username: { type: String },
     offeredService: { type: String, required: true },
     isVerifiedVendor: { type: Boolean, default: false },
   },

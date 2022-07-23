@@ -26,12 +26,11 @@ const UserSchema = new Schema(
     bankAccounts: [bankAccountSchema],
     pin: {
       type: Number,
-      required: true,
       trim: true,
       min: [4, 'Pin too short, 4 digits required'],
       max: [4, 'Pin too long'],
     },
-    username: { type: String, required: true, unique: true },
+    username: { type: String },
   },
   {
     timestamps: true,
