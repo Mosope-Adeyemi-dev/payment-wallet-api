@@ -53,7 +53,7 @@ const verifyTransactionStatus = async (req, res) => {
     if (check[0]) {
       return responseHandler(
         res,
-        'Initialization successful',
+        'verified transaction by reference',
         200,
         false,
         check[1]

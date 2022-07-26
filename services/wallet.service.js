@@ -1,6 +1,7 @@
 const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 const { v4: uuidv4 } = require('uuid');
 const WalletModel = require('../models/wallet.model');
+const { translateError } = require('../utils/mongo_helper');
 
 class Wallet {
   constructor(email) {
@@ -30,15 +31,39 @@ class Wallet {
     return [false];
   }
 
+  async #updateTransaction(referenceId, status, processingFees) {
+    try {
+      const updatedTransaction = await WalletModel.findOneAndUpdate(
+        { referenceId },
+        { status, processingFees },
+        { new: true }
+      );
+
+      if (updatedTransaction) {
+        return updatedTransaction;
+      }
+      return null;
+    } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
   async initializePaystackCheckout(amount, userId) {
+    const helper = new paystack.FeeHelper();
+    const amountPlusPaystackFees = helper.addFeesTo(amount * 100);
+    const splitAccountFees = (1 / 100) * amount * 100;
+
     const result = await paystack.transaction.initialize({
       email: this.email,
-      amount: amount * 100,
+      //If amount is less than NGN2500, waive paystack's NGN100 charge to NGN10
+      amount:
+        amount >= 2500
+          ? Math.ceil(amountPlusPaystackFees + 15000 + splitAccountFees)
+          : Math.ceil(amountPlusPaystackFees + 1000 + splitAccountFees),
       reference: uuidv4(),
       currency: 'NGN',
-      callback_url: 'localhost://4000/well',
       subaccount: 'ACCT_u924du62gsd7pho',
-      bearer: 'subaccount',
+      // bearer: 'subaccount',
     });
 
     if (!result) {
@@ -58,15 +83,52 @@ class Wallet {
   }
 
   async verifyTransaction(reference) {
-    const result = await paystack.transaction.verify({
-      reference,
-    });
+    try {
+      const result = await paystack.transaction.verify({
+        reference,
+      });
 
-    if (!result) {
-      return [false, result];
+      console.log(result);
+      if (!result) {
+        return [false, result];
+      }
+
+      const { paystack, integration, subaccount: }
+      totalProcessingFees = result.data.fees_split
+      const updatedTransaction = await this.#updateTransaction(
+        reference,
+        result.data.status,
+        result.data.fees_split
+      );
+
+      if (updatedTransaction) {
+        return [true, updatedTransaction];
+      }
+      // return [true, result.data];
+    } catch (error) {
+      return [false, error];
     }
+
+    // .then(async (body) => {
+    //   const updatedTransaction = await this.#updateTransaction(
+    //     reference,
+    //     body.data.status
+    //   );
+    //   return [true, updatedTransaction];
+    // })
+    // .catch((error) => {
+    //   return [false, error];
+    // });
+
+    // if (!result) {
+    //   return [false, result];
+    // }
     // if (newTransaction) {
-    return [true, result.data];
+    //   return [true, result.data];
+    //   const updatedTransaction = await this.#updateTransaction(
+    //     reference,
+    //     result.data.status
+    //   );
     // }
   }
 }

@@ -28,9 +28,10 @@ const WalletSchema = new Schema(
       type: String,
       trim: true,
       default: 'Pending',
-      enum: ['Pending', 'Success', 'Failed'],
+      enum: ['Pending', 'Success', 'Failed', 'Abandoned'],
       required: true,
     },
+    processingFees: { type: Number },
     amount: {
       type: Number,
       required: true,
