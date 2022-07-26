@@ -1,20 +1,21 @@
 const bcrypt = require('bcrypt');
-const Customer = require('../models/user.model');
-const VendorModel = require('../models/vendor.model');
+const UserModel = require('../models/user.model');
 const { translateError } = require('../utils/mongo_helper');
 const jwt = require('jsonwebtoken');
+
 class User {
   constructor(email) {
     this.email = email;
   }
 
-  async createUserAccount(firstname, lastname, password) {
+  async createAccount(firstname, lastname, password) {
     try {
-      const newCustomer = new Customer({
+      const newCustomer = new UserModel({
         firstname,
         lastname,
         email: this.email,
         password: await this.hashedPassword(password),
+        isVendor: false,
       });
       if (await newCustomer.save()) {
         return [true, await this.signJwt(newCustomer._id), newCustomer];
@@ -26,11 +27,11 @@ class User {
 
   async authenticateUser(password) {
     try {
-      const foundUser = await Customer.findOne({ email: this.email });
+      const foundUser = await UserModel.findOne({ email: this.email });
       if (!foundUser) {
         return [false];
       }
-      if (await this.validatePassword(password, foundUser.password)) {
+      if (await this.#validatePassword(password, foundUser.password)) {
         return [true, await this.signJwt(foundUser._id)];
       }
       return [false];
@@ -51,41 +52,34 @@ class User {
     return token;
   }
 
-  async validatePassword(formPassword, dbPassword) {
+  // Private method
+  async #validatePassword(formPassword, dbPassword) {
     return await bcrypt.compare(formPassword, dbPassword);
   }
-}
 
-class Vendor extends User {
-  constructor(email) {
-    super(email);
-  }
-
-  async createUserAccount(firstname, lastname, password, offeredService) {
+  async updateUsername(id, username) {
     try {
-      const newVendor = new VendorModel({
-        firstname,
-        lastname,
-        email: this.email,
-        password: await this.hashedPassword(password),
-        offeredService,
-      });
-      if (await newVendor.save()) {
-        return [true, newVendor];
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        id,
+        { $set: { username } },
+        { new: true }
+      );
+      if (updatedUser) {
+        return [true, updatedUser];
       }
+      return [false];
     } catch (error) {
       return [false, translateError(error)];
     }
   }
 
-  async authenticateUser(password) {
+  async findByUsername(username) {
     try {
-      const foundUser = await VendorModel.findOne({ email: this.email });
-      if (!foundUser) {
-        return [false];
-      }
-      if (await this.validatePassword(password, foundUser.password)) {
-        return [true, await this.signJwt(foundUser._id)];
+      const foundUsername = await UserModel.findOne({ username }).select(
+        'username'
+      );
+      if (!foundUsername) {
+        return [true];
       }
       return [false];
     } catch (error) {
@@ -93,7 +87,5 @@ class Vendor extends User {
     }
   }
 }
-module.exports = {
-  User,
-  Vendor,
-};
+
+module.exports = User;
