@@ -33,6 +33,42 @@ const setupAccountTag = async (req, res) => {
   }
 };
 
+const verifyAvailableUsername = async (req, res) => {
+  try {
+    if (req.params.username === undefined) {
+      return responseHandler(
+        res,
+        'Invalid request. Include username',
+        400,
+        true,
+        ''
+      );
+    }
+
+    const user = new User(req.email);
+    const check = await user.findByUsername(req.params.username);
+    if (check[0]) {
+      return responseHandler(res, 'Account tag available', 200, false, '');
+    }
+    return responseHandler(
+      res,
+      check[1] || 'Account tag unavailable',
+      400,
+      true,
+      ''
+    );
+  } catch (error) {
+    return responseHandler(
+      res,
+      'An error occured. Try again',
+      500,
+      true,
+      error
+    );
+  }
+};
+
 module.exports = {
   setupAccountTag,
+  verifyAvailableUsername,
 };

@@ -1,38 +1,38 @@
-const Vendor = require('../services/vendor.service');
-const { responseHandler } = require('../utils/responseHandler');
-const { setupTagValidation } = require('../validations/user.validation');
+// const Vendor = require('../services/vendor.service');
+// const { responseHandler } = require('../utils/responseHandler');
+// const { setupTagValidation } = require('../validations/user.validation');
 
-const setupAccountTag = async (req, res) => {
-  try {
-    const { details } = await setupTagValidation(req.body);
-    if (details) {
-      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
-      return responseHandler(res, allErrors, 400, true, '');
-    }
+// // const setupAccountTag = async (req, res) => {
+// //   try {
+// //     const { details } = await setupTagValidation(req.body);
+// //     if (details) {
+// //       let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+// //       return responseHandler(res, allErrors, 400, true, '');
+// //     }
 
-    const vendor = new Vendor(req.email);
-    const check = await vendor.updateUsername(req.id, req.body.accountTag);
-    if (check[0]) {
-      return responseHandler(
-        res,
-        'Account tag setup successful',
-        201,
-        false,
-        check[1]
-      );
-    }
-    return responseHandler(res, check[1], 400, true, '');
-  } catch (error) {
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
-  }
-};
+// //     const vendor = new Vendor(req.email);
+// //     const check = await vendor.updateUsername(req.id, req.body.accountTag);
+// //     if (check[0]) {
+// //       return responseHandler(
+// //         res,
+// //         'Account tag setup successful',
+// //         201,
+// //         false,
+// //         check[1]
+// //       );
+// //     }
+// //     return responseHandler(res, check[1], 400, true, '');
+// //   } catch (error) {
+// //     return responseHandler(
+// //       res,
+// //       'An error occured. Try again',
+// //       500,
+// //       true,
+// //       error
+// //     );
+// //   }
+// // };
 
-module.exports = {
-  setupAccountTag,
-};
+// module.exports = {
+//   setupAccountTag,
+// };

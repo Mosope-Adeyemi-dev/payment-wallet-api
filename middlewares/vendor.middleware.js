@@ -1,7 +1,7 @@
-const Vendor = require('../models/vendor.model');
+const User = require('../models/user.model');
 
 const isVerifiedVendor = async (req, res, next) => {
-  const foundVendor = await Vendor.findById(req.id);
+  const foundVendor = await User.findById(req.id);
   if (!foundVendor.isVerifiedVendor) {
     return res.status(403).json({
       error: true,

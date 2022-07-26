@@ -17,7 +17,7 @@ const signup = async (req, res) => {
     const { firstname, lastname, password, email } = req.body;
 
     const user = new User(email);
-    const check = await user.createUserAccount(firstname, lastname, password);
+    const check = await user.createAccount(firstname, lastname, password);
     console.log(check, 'check');
 
     if (check[0]) {
@@ -48,7 +48,7 @@ const vendorSignup = async (req, res) => {
     const { firstname, lastname, password, email, offeredService } = req.body;
 
     const vendor = new Vendor(email);
-    const check = await vendor.createUserAccount(
+    const check = await vendor.createAccount(
       firstname,
       lastname,
       password,
@@ -102,40 +102,39 @@ const login = async (req, res) => {
   }
 };
 
-const vendorLogin = async (req, res) => {
-  try {
-    const { details } = await loginValidation(req.body);
-    if (details) {
-      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
-      return responseHandler(res, allErrors, 400, true, '');
-    }
+// const vendorLogin = async (req, res) => {
+//   try {
+//     const { details } = await loginValidation(req.body);
+//     if (details) {
+//       let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+//       return responseHandler(res, allErrors, 400, true, '');
+//     }
 
-    const { email, password } = req.body;
-    const vendor = new Vendor(email);
-    console.log(vendor, 'user');
-    const check = await vendor.authenticateUser(password);
+//     const { email, password } = req.body;
+//     const vendor = new Vendor(email);
+//     console.log(vendor, 'user');
+//     const check = await vendor.authenticateUser(password);
 
-    if (check[0]) {
-      res.cookie('token', check[1], { expiresIn: '1d', httpOnly: true });
-      return responseHandler(res, 'login succesful', 201, false, {
-        token: check[1],
-      });
-    }
-    return responseHandler(res, check[1], 400, true, '');
-  } catch (error) {
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
-  }
-};
+//     if (check[0]) {
+//       res.cookie('token', check[1], { expiresIn: '1d', httpOnly: true });
+//       return responseHandler(res, 'login succesful', 201, false, {
+//         token: check[1],
+//       });
+//     }
+//     return responseHandler(res, check[1], 400, true, '');
+//   } catch (error) {
+//     return responseHandler(
+//       res,
+//       'An error occured. Try again',
+//       500,
+//       true,
+//       error
+//     );
+//   }
+// };
 
 module.exports = {
   signup,
   login,
   vendorSignup,
-  vendorLogin,
 };
