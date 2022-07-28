@@ -3,6 +3,7 @@ const { responseHandler } = require('../utils/responseHandler');
 const {
   fundWalletValidation,
   transferFundsValidation,
+  setPinValidation,
 } = require('../validations/wallet.validations');
 
 const fundWallet = async (req, res) => {
@@ -134,8 +135,8 @@ const setupTransactionPin = async (req, res) => {
       return responseHandler(res, allErrors, 400, true, '');
     }
 
-    const user = new User(req.email);
-    const check = await user.set;
+    const wallet = new Wallet(req.email);
+    const check = await wallet.setPin(req.body.pin);
     if (check[0]) {
       return responseHandler(
         res,

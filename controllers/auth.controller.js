@@ -90,7 +90,13 @@ const login = async (req, res) => {
         token: check[1],
       });
     }
-    return responseHandler(res, 'Incorrect email or password', 400, true, '');
+    return responseHandler(
+      res,
+      check[1] || 'Incorrect email or password',
+      400,
+      true,
+      ''
+    );
   } catch (error) {
     return responseHandler(
       res,

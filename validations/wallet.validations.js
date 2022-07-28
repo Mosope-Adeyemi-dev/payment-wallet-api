@@ -13,6 +13,7 @@ const fundWalletValidation = async (field) => {
 
 const transferFundsValidation = async (field) => {
   const schema = Joi.object({
+    pin: Joi.string().min(4).max(4).required(),
     amount: Joi.number().required(),
     comment: Joi.string(),
     recipientAccountTag: Joi.string().min(6).required(),
@@ -23,7 +24,21 @@ const transferFundsValidation = async (field) => {
     return err;
   }
 };
+
+const setPinValidation = async (field) => {
+  const schema = Joi.object({
+    pin: Joi.string().min(4).max(4).required(),
+    confirmPin: Joi.ref('pin'),
+  });
+  try {
+    return await schema.validateAsync(field, { abortEarly: false });
+  } catch (err) {
+    return err;
+  }
+};
+
 module.exports = {
+  setPinValidation,
   fundWalletValidation,
   transferFundsValidation,
 };

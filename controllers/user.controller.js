@@ -2,7 +2,6 @@ const User = require('../services/user.service');
 const { responseHandler } = require('../utils/responseHandler');
 const {
   setupTagValidation,
-  setPinValidation,
   getUserDetailsByUsernameValidation,
 } = require('../validations/user.validation');
 
@@ -110,8 +109,36 @@ const getUserDetailsByUsername = async (req, res) => {
   }
 };
 
+const getAccountDetails = async (req, res) => {
+  try {
+    const user = new User(req.email);
+    const check = await user.findById(req.id);
+
+    if (check[0]) {
+      return responseHandler(
+        res,
+        'Account details retrieved',
+        200,
+        false,
+        check[1]
+      );
+    }
+    return responseHandler(res, check[1] || 'User not found', 400, true, '');
+  } catch (error) {
+    console.log(error);
+    return responseHandler(
+      res,
+      'An error occured. Try again',
+      500,
+      true,
+      error
+    );
+  }
+};
+
 module.exports = {
   setupAccountTag,
+  getAccountDetails,
   verifyAvailableUsername,
   getUserDetailsByUsername,
 };

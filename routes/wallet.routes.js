@@ -14,5 +14,5 @@ router.get(
   verifyTransactionStatus
 );
 router.post('/wallet/transfer-fund', verifyUserToken, transferFunds);
-router.put('/wallet/set-pin', verifyUserToken, setupTransactionPin);
+router.put('/wallet/pin/set', verifyUserToken, setupTransactionPin);
 module.exports = router;

@@ -33,17 +33,17 @@ class Wallet {
     return [false];
   }
 
-  async #setPin(pin) {
+  async setPin(pin) {
     const updatedUser = await UserModel.findOneAndUpdate(
       { email: this.email },
       { pin },
       { new: true }
-    );
+    ).select('pin');
 
     if (updatedUser) {
       return [true, updatedUser];
     }
-    return [false, null];
+    return [false];
   }
 
   async #updateTransaction(referenceId, status, processingFees, authorization) {
@@ -140,7 +140,10 @@ class Wallet {
       return [false, 'Invalid recipient account'];
     }
 
-    if (this.calculateWalletBalance <= amount + 100) {
+    if (
+      (await this.calculateWalletBalance(fundOriginatorAccount)) <=
+      Number(amount) + 100
+    ) {
       return [false, 'Error - Insufficient funds'];
     }
 
@@ -183,14 +186,23 @@ class Wallet {
     console.log(recipientTransactons, originatorTransactions);
     if (recipientTransactons && originatorTransactions) {
       recipientTransactons.forEach((transaction) => {
-        totalCredits = totalCredits + transaction.amount;
+        if (
+          transaction.status === 'success' ||
+          transaction.status === 'Success'
+        )
+          totalCredits = totalCredits + transaction.amount;
       });
       originatorTransactions.forEach((transaction) => {
-        totalDebits = totalDebits + transaction.amount;
+        if (
+          transaction.status === 'success' ||
+          transaction.status === 'Success'
+        )
+          totalDebits = totalDebits + transaction.amount;
       });
     }
-    console.log(totalCredits + totalDebits, 'Wallet balance');
-    return totalCredits + totalDebits;
+    console.log(totalCredits - totalDebits, 'Wallet balance');
+    console.log(totalCredits, totalDebits, 'Credits, debits');
+    return totalCredits - totalDebits;
   }
 
   async #validatePin(formPin, id) {

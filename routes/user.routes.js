@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const {
   setupAccountTag,
+  getAccountDetails,
   verifyAvailableUsername,
   getUserDetailsByUsername,
 } = require('../controllers/user.controller');
@@ -17,4 +18,5 @@ router.get(
   verifyUserToken,
   getUserDetailsByUsername
 );
+router.get('/user/profile/me', verifyUserToken, getAccountDetails);
 module.exports = router;
