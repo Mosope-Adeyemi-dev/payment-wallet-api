@@ -73,7 +73,7 @@ class User {
     }
   }
 
-  async findByUsername(username) {
+  async findAvailableUsername(username) {
     try {
       const foundUsername = await UserModel.findOne({ username }).select(
         'username'
@@ -83,6 +83,21 @@ class User {
       }
       return [false];
     } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
+  async findByUsername(username) {
+    try {
+      const foundUser = await UserModel.findOne({ username }).select(
+        'username firstname lastname photo'
+      );
+      if (foundUser) {
+        return [true, foundUser];
+      }
+      return [false];
+    } catch (error) {
+      console.log(error);
       return [false, translateError(error)];
     }
   }

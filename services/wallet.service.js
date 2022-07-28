@@ -1,19 +1,21 @@
-const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+const Paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+// const Paystack = require('paystack-api');
 const { v4: uuidv4 } = require('uuid');
 const WalletModel = require('../models/wallet.model');
-const { translateError } = require('../utils/mongo_helper');
+const UserModel = require('../models/user.model');
 
 class Wallet {
   constructor(email) {
     this.email = email;
   }
+
   //Private
   async #storeTransaction(
     referenceId,
     transactionType,
     operationType,
     amount,
-    fundOriginatorAccount,
+    fundRecipientAccount,
     accessCode
   ) {
     const newTransaction = new WalletModel({
@@ -21,7 +23,7 @@ class Wallet {
       transactionType,
       operationType,
       amount,
-      fundOriginatorAccount,
+      fundRecipientAccount,
       accessCode,
     });
 
@@ -31,29 +33,38 @@ class Wallet {
     return [false];
   }
 
-  async #updateTransaction(referenceId, status, processingFees) {
-    try {
-      const updatedTransaction = await WalletModel.findOneAndUpdate(
-        { referenceId },
-        { status, processingFees },
-        { new: true }
-      );
+  async #setPin(pin) {
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { email: this.email },
+      { pin },
+      { new: true }
+    );
 
-      if (updatedTransaction) {
-        return updatedTransaction;
-      }
-      return null;
-    } catch (error) {
-      return [false, translateError(error)];
+    if (updatedUser) {
+      return [true, updatedUser];
     }
+    return [false, null];
+  }
+
+  async #updateTransaction(referenceId, status, processingFees, authorization) {
+    const updatedTransaction = await WalletModel.findOneAndUpdate(
+      { referenceId },
+      { status, processingFees, authorization },
+      { new: true }
+    );
+
+    if (updatedTransaction) {
+      return updatedTransaction;
+    }
+    return null;
   }
 
   async initializePaystackCheckout(amount, userId) {
-    const helper = new paystack.FeeHelper();
+    const helper = new Paystack.FeeHelper();
     const amountPlusPaystackFees = helper.addFeesTo(amount * 100);
     const splitAccountFees = (1 / 100) * amount * 100;
 
-    const result = await paystack.transaction.initialize({
+    const result = await Paystack.transaction.initialize({
       email: this.email,
       //If amount is less than NGN2500, waive paystack's NGN100 charge to NGN10
       amount:
@@ -62,16 +73,17 @@ class Wallet {
           : Math.ceil(amountPlusPaystackFees + 1000 + splitAccountFees),
       reference: uuidv4(),
       currency: 'NGN',
-      subaccount: 'ACCT_u924du62gsd7pho',
+      subaccount: process.env.PAYSTACK_SUB_ACCT,
       // bearer: 'subaccount',
     });
 
     if (!result) {
       return [false, result];
     }
+
     const newTransaction = await this.#storeTransaction(
       result.data.reference,
-      'Fund wallet',
+      'Fund',
       'Credit',
       amount,
       userId,
@@ -84,52 +96,81 @@ class Wallet {
 
   async verifyTransaction(reference) {
     try {
-      const result = await paystack.transaction.verify({
+      const result = await Paystack.transaction.verify({
         reference,
       });
 
-      console.log(result);
+      console.log(result, 'result');
       if (!result) {
-        return [false, result];
+        return [false];
       }
 
-      const { paystack, integration, subaccount: }
-      totalProcessingFees = result.data.fees_split
+      const { paystack, subaccount } = result.data.fees_split;
+      const totalProcessingFees = paystack + subaccount;
+
       const updatedTransaction = await this.#updateTransaction(
         reference,
         result.data.status,
-        result.data.fees_split
+        totalProcessingFees,
+        result.data.authorization
       );
+      console.log(updatedTransaction);
 
       if (updatedTransaction) {
         return [true, updatedTransaction];
       }
-      // return [true, result.data];
+
+      return [false];
     } catch (error) {
-      return [false, error];
+      return [false];
+    }
+  }
+
+  async transferFund(
+    pin,
+    amount,
+    fundRecipientAccountTag,
+    comment,
+    fundOriginatorAccount
+  ) {
+    const foundRecipient = await UserModel.findById({
+      username: fundRecipientAccountTag,
+    }).select('username _id');
+    if (!foundRecipient) {
+      return [false, 'Invalid recipient account'];
     }
 
-    // .then(async (body) => {
-    //   const updatedTransaction = await this.#updateTransaction(
-    //     reference,
-    //     body.data.status
-    //   );
-    //   return [true, updatedTransaction];
-    // })
-    // .catch((error) => {
-    //   return [false, error];
-    // });
+    if (await this.#validatePin(pin, fundOriginatorAccount)) {
+      const newTransaction = new WalletModel({
+        fundRecipientAccount: foundRecipient._id,
+        fundOriginatorAccount,
+        amount,
+        operationType: 'Debit',
+        transactionType: 'Transfer',
+        status: 'Success',
+        referenceId: uuidv4(),
+        comment,
+      });
 
-    // if (!result) {
-    //   return [false, result];
-    // }
-    // if (newTransaction) {
-    //   return [true, result.data];
-    //   const updatedTransaction = await this.#updateTransaction(
-    //     reference,
-    //     result.data.status
-    //   );
-    // }
+      if (await newTransaction.save()) {
+        return [true, newTransaction];
+      }
+      return [false, 'Unable to process transfer'];
+    } else {
+      return [false, 'Incorrect transaction pin'];
+    }
+  }
+
+  // async #validateRecepientAccount(username) {
+
+  // }
+
+  async #validatePin(formPin, id) {
+    const foundUser = await UserModel.findById(id).select('pin');
+    if (foundUser.pin === formPin) {
+      return true;
+    }
+    return false;
   }
 }
 

@@ -2,17 +2,12 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 const { Schema } = mongoose;
 
-// const bankAccountSchema = new mongoose.Schema({
-//   bank: { type: String, required: true },
-//   accountNumber: { type: Number, required: true },
-// });
-
 const WalletSchema = new Schema(
   {
     transactionType: {
       type: String,
       trim: true,
-      enum: ['Fund wallet', 'Withdrawal', 'Transfer'],
+      enum: ['Fund', 'Withdrawal', 'Transfer'],
       required: true,
     },
     accessCode: { type: String },
@@ -22,8 +17,8 @@ const WalletSchema = new Schema(
       enum: ['Credit', 'Debit'],
       required: true,
     },
-    fundRecipientAccount: { type: String },
-    fundOriginatorAccount: { type: ObjectId, ref: 'User', required: true },
+    fundRecipientAccount: { type: ObjectId, ref: 'User' },
+    fundOriginatorAccount: { type: ObjectId, ref: 'User' },
     status: {
       type: String,
       trim: true,
@@ -31,12 +26,14 @@ const WalletSchema = new Schema(
       enum: ['Pending', 'Success', 'Failed', 'Abandoned'],
       required: true,
     },
-    processingFees: { type: Number },
+    processingFees: { type: Number, default: 0 },
     amount: {
       type: Number,
       required: true,
     },
     referenceId: { type: String, unique: true, required: true },
+    authorization: { type: Object },
+    comment: { type: String },
   },
   {
     timestamps: true,
