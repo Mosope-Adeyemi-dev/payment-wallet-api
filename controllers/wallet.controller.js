@@ -126,8 +126,47 @@ const transferFunds = async (req, res) => {
   }
 };
 
+const setupTransactionPin = async (req, res) => {
+  try {
+    const { details } = await setPinValidation(req.body);
+    if (details) {
+      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+      return responseHandler(res, allErrors, 400, true, '');
+    }
+
+    const user = new User(req.email);
+    const check = await user.set;
+    if (check[0]) {
+      return responseHandler(
+        res,
+        'Transaction pin set succesfully',
+        200,
+        false,
+        check[1]
+      );
+    }
+    return responseHandler(
+      res,
+      check[1] || 'Unable to set transaction pin',
+      400,
+      true,
+      ''
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHandler(
+      res,
+      'An error occured. Try again',
+      500,
+      true,
+      error
+    );
+  }
+};
+
 module.exports = {
   fundWallet,
   verifyTransactionStatus,
   transferFunds,
+  setupTransactionPin,
 };

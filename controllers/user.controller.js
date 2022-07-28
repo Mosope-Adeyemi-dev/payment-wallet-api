@@ -2,6 +2,7 @@ const User = require('../services/user.service');
 const { responseHandler } = require('../utils/responseHandler');
 const {
   setupTagValidation,
+  setPinValidation,
   getUserDetailsByUsernameValidation,
 } = require('../validations/user.validation');
 

@@ -3,6 +3,7 @@ const {
   fundWallet,
   verifyTransactionStatus,
   transferFunds,
+  setupTransactionPin,
 } = require('../controllers/wallet.controller');
 const { verifyUserToken } = require('../middlewares/auth.middleware');
 
@@ -13,4 +14,5 @@ router.get(
   verifyTransactionStatus
 );
 router.post('/wallet/transfer-fund', verifyUserToken, transferFunds);
+router.put('/wallet/set-pin', verifyUserToken, setupTransactionPin);
 module.exports = router;

@@ -133,14 +133,20 @@ class Wallet {
     comment,
     fundOriginatorAccount
   ) {
-    const foundRecipient = await UserModel.findById({
+    const foundRecipient = await UserModel.findOne({
       username: fundRecipientAccountTag,
-    }).select('username _id');
+    }).select('username');
     if (!foundRecipient) {
       return [false, 'Invalid recipient account'];
     }
 
+    if (this.calculateWalletBalance <= amount + 100) {
+      return [false, 'Error - Insufficient funds'];
+    }
+
     if (await this.#validatePin(pin, fundOriginatorAccount)) {
+      // include step to validate user balance!!!
+
       const newTransaction = new WalletModel({
         fundRecipientAccount: foundRecipient._id,
         fundOriginatorAccount,
@@ -155,15 +161,37 @@ class Wallet {
       if (await newTransaction.save()) {
         return [true, newTransaction];
       }
-      return [false, 'Unable to process transfer'];
+      return [false, 'Error - Unable to process transfer'];
     } else {
-      return [false, 'Incorrect transaction pin'];
+      return [false, 'Error - Incorrect transaction pin'];
     }
   }
 
-  // async #validateRecepientAccount(username) {
+  async calculateWalletBalance(id) {
+    // Transactions were the user is a fund recipient.
+    const recipientTransactons = await WalletModel.find({
+      fundRecipientAccount: id,
+    });
+    //Transactions where user is fund originator
+    const originatorTransactions = await WalletModel.find({
+      fundOriginatorAccount: id,
+    });
 
-  // }
+    let totalCredits = 0.0;
+    let totalDebits = 0.0;
+
+    console.log(recipientTransactons, originatorTransactions);
+    if (recipientTransactons && originatorTransactions) {
+      recipientTransactons.forEach((transaction) => {
+        totalCredits = totalCredits + transaction.amount;
+      });
+      originatorTransactions.forEach((transaction) => {
+        totalDebits = totalDebits + transaction.amount;
+      });
+    }
+    console.log(totalCredits + totalDebits, 'Wallet balance');
+    return totalCredits + totalDebits;
+  }
 
   async #validatePin(formPin, id) {
     const foundUser = await UserModel.findById(id).select('pin');
