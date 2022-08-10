@@ -259,7 +259,7 @@ class Wallet {
       console.log(accountDetails);
       return [true, accountDetails.data];
     } catch (error) {
-      console.log(error);git a
+      console.log(error);
       return [false, error.message];
     }
   }
