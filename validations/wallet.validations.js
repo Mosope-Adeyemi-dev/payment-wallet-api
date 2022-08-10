@@ -37,8 +37,21 @@ const setPinValidation = async (field) => {
   }
 };
 
+const verifyBankAccountValidation = async (field) => {
+  const schema = Joi.object({
+    bank_code: Joi.string().required(),
+    account_number: Joi.string().required(),
+  });
+  try {
+    return await schema.validateAsync(field, { abortEarly: false });
+  } catch (err) {
+    return err;
+  }
+};
+
 module.exports = {
   setPinValidation,
   fundWalletValidation,
   transferFundsValidation,
+  verifyBankAccountValidation,
 };

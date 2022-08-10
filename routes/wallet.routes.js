@@ -4,6 +4,11 @@ const {
   verifyTransactionStatus,
   transferFunds,
   setupTransactionPin,
+  getWalletBalance,
+  getTransactionHistory,
+  getTransactionDetail,
+  getBanksList,
+  verifyBankAccount,
 } = require('../controllers/wallet.controller');
 const { verifyUserToken } = require('../middlewares/auth.middleware');
 
@@ -15,4 +20,17 @@ router.get(
 );
 router.post('/wallet/transfer-fund', verifyUserToken, transferFunds);
 router.put('/wallet/pin/set', verifyUserToken, setupTransactionPin);
+router.get('/wallet/balance', verifyUserToken, getWalletBalance);
+router.get(
+  '/wallet/transaction-history',
+  verifyUserToken,
+  getTransactionHistory
+);
+router.get(
+  '/wallet/transaction-history/:transactionId',
+  verifyUserToken,
+  getTransactionDetail
+);
+router.get('/wallet/banks', verifyUserToken, getBanksList);
+router.get('/wallet/banks/verify-account', verifyUserToken, verifyBankAccount);
 module.exports = router;

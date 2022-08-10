@@ -4,6 +4,7 @@ const {
   fundWalletValidation,
   transferFundsValidation,
   setPinValidation,
+  verifyBankAccountValidation,
 } = require('../validations/wallet.validations');
 
 const fundWallet = async (req, res) => {
@@ -165,9 +166,150 @@ const setupTransactionPin = async (req, res) => {
   }
 };
 
+const getWalletBalance = async (req, res) => {
+  try {
+    const wallet = new Wallet(req.email);
+    const balance = await wallet.calculateWalletBalance(req.id);
+    // if (balance) {
+    return responseHandler(res, 'Wallet balance retrieved', 200, false, {
+      balance,
+      note: balance === 0 ? 'This user is broke lmao 👀' : null,
+    });
+  } catch (error) {
+    console.log(error);
+    return responseHandler(
+      res,
+      'Unable to retrieve wallet balance',
+      500,
+      true,
+      ''
+    );
+  }
+};
+
+const getTransactionHistory = async (req, res) => {
+  try {
+    const wallet = new Wallet(req.email);
+    const check = await wallet.getUserTransactions(req.id);
+    if (check[0]) {
+      return responseHandler(
+        res,
+        'Transaction history retrieved succesfully',
+        200,
+        false,
+        check[1]
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    return responseHandler(
+      res,
+      'Unable to retrieve transaction history',
+      500,
+      true,
+      ''
+    );
+  }
+};
+
+const getTransactionDetail = async (req, res) => {
+  try {
+    if (req.params.transactionId === undefined) {
+      return responseHandler(
+        res,
+        'Invalid request. Include valid transaction ID',
+        400,
+        true,
+        ''
+      );
+    }
+    const wallet = new Wallet(req.email);
+    const check = await wallet.getTransaction(req.params.transactionId);
+    if (check[0]) {
+      return responseHandler(
+        res,
+        'Transaction detail retrieved succesfully',
+        200,
+        false,
+        check[1]
+      );
+    }
+    return responseHandler(
+      res,
+      check[1] || 'Unable to retrieve transaction detail',
+      404,
+      true,
+      ''
+    );
+  } catch (error) {
+    console.log(error);
+    return responseHandler(
+      res,
+      'An error occured. Try again',
+      500,
+      true,
+      error
+    );
+  }
+};
+
+const getBanksList = async (req, res) => {
+  try {
+    const wallet = new Wallet(req.email);
+    const check = await wallet.getPaystackBankLists();
+    if (check) {
+      return responseHandler(
+        res,
+        'Bank list retrieved succesfully',
+        200,
+        false,
+        check[1]
+      );
+    }
+    return responseHandler(res, 'Unable to retrieve bank list', 400, true, '');
+  } catch (error) {
+    console.log(error);
+    return responseHandler(res, 'Unable to retrieve bank list', 500, true, '');
+  }
+};
+
+const verifyBankAccount = async (req, res) => {
+  try {
+    const { details } = await verifyBankAccountValidation(req.body);
+    if (details) {
+      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+      return responseHandler(res, allErrors, 400, true, '');
+    }
+
+    const wallet = new Wallet(req.email);
+    const check = await wallet.resolveBankAccount(
+      req.body.account_number,
+      req.body.bank_code
+    );
+
+    if (check[1]) {
+      return responseHandler(
+        res,
+        'Bank account details retrieved',
+        200,
+        false,
+        check[1]
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    return responseHandler(res, 'Unable to retrieve bank list', 500, true, '');
+  }
+};
+
 module.exports = {
   fundWallet,
   verifyTransactionStatus,
   transferFunds,
   setupTransactionPin,
+  getWalletBalance,
+  getTransactionHistory,
+  getTransactionDetail,
+  getBanksList,
+  verifyBankAccount,
 };

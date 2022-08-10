@@ -1,5 +1,5 @@
 const Paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
-// const Paystack = require('paystack-api');
+const { translateError } = require('../utils/mongo_helper');
 const { v4: uuidv4 } = require('uuid');
 const WalletModel = require('../models/wallet.model');
 const UserModel = require('../models/user.model');
@@ -212,114 +212,57 @@ class Wallet {
     }
     return false;
   }
+
+  async getUserTransactions(id) {
+    try {
+      const transactions = await WalletModel.find({
+        $or: [{ fundRecipientAccount: id }, { fundOriginatorAccount: id }],
+        $or: [{ status: 'Success' }, { status: 'success' }],
+      }).sort({ createdAt: -1 });
+      return [true, transactions];
+    } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
+  async getTransaction(transactionId) {
+    try {
+      const transaction = await WalletModel.findById(transactionId);
+      if (transaction) {
+        return [true, transaction];
+      }
+      return [false, 'Transaction not found'];
+    } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
+  async getPaystackBankLists() {
+    try {
+      const banks = await Paystack.misc.list_banks({
+        country: 'nigeria',
+        use_cursor: true,
+        perPage: 100,
+      });
+      return [true, banks.data];
+    } catch (error) {
+      return [false, error];
+    }
+  }
+
+  async resolveBankAccount(account_number, bank_code) {
+    try {
+      const accountDetails = await Paystack.verification.resolveAccount({
+        account_number,
+        bank_code,
+      });
+      console.log(accountDetails);
+      return [true, accountDetails.data];
+    } catch (error) {
+      console.log(error);git a
+      return [false, error.message];
+    }
+  }
 }
 
 module.exports = Wallet;
-// async intializePaymentChannel(pin, amount) {
-//     const params = JSON.stringify({
-//       email,
-//       amount: amount * 100,
-//       reference: uuidv4(),
-//       currency: 'NGN',
-//       callback_url: `${getUrl}/api/v1/wallet/paystack/verify-transaction/`,
-//     });
-//     const options = {
-//       hostname: 'api.paystack.co',
-//       port: 443,
-//       path: '/transaction/initialize',
-//       method: 'POST',
-//       headers: {
-//         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-//         'Content-Type': 'application/json',
-//       },
-//     };
-
-//     return new Promise(function (resolve, reject) {
-//       const req = https
-//         .request(options, (res) => {
-//           let responseData = '';
-//           res.on('data', (chunk) => {
-//             responseData += chunk;
-//           });
-//           res.on('end', () => {
-//             /*if request was succesful but paystack service fails i.e status: false*/
-//             if (JSON.parse(responseData).status) {
-//               resolve([true, JSON.parse(responseData)]);
-//             } else {
-//               resolve([false, JSON.parse(responseData)]);
-//             }
-//           });
-//         })
-//         .on('error', (error) => {
-//           console.error(error);
-//           resolve([false, JSON.parse(responseData)]);
-//         });
-//       req.write(params);
-//       req.end();
-//     });
-//   }
-
-//   async verifyTransactionStatus(reference) {
-//     const options = {
-//       hostname: 'api.paystack.co',
-//       port: 443,
-//       path: `/transaction/verify/${reference}`,
-//       method: 'GET',
-//       headers: {
-//         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-//         'Content-Type': 'application/json',
-//       },
-//     };
-
-//     return new Promise(function (resolve, reject) {
-//       const req = https
-//         .request(options, (res) => {
-//           let responseData = '';
-//           res.on('data', (chunk) => {
-//             responseData += chunk;
-//           });
-//           res.on('end', () => {
-//             /*if request was succesful but paystack service fails i.e status: false*/
-//             if (JSON.parse(responseData).status) {
-//               resolve([true, JSON.parse(responseData)]);
-//             } else {
-//               resolve([false, JSON.parse(responseData)]);
-//             }
-//           });
-//         })
-//         .on('error', (error) => {
-//           console.error(error);
-//           resolve([false, JSON.parse(responseData)]);
-//         });
-//       req.end();
-//     });
-//   }
-
-//   async #storeTransaction(email, transactionDetail) {
-//     const { status, id, amount, reference } = transactionDetail;
-//     await UserModel.findOneAndUpdate(
-//       { email },
-//       {
-//         $push: {
-//           transactionHistory: {
-//             transactionId: id,
-//             status,
-//             amount,
-//             reference,
-//             fullHistory: transactionDetail,
-//           },
-//         },
-//       },
-//       { new: true }
-//     );
-//   }
-
-//   async #checkTransactionExists(reference) {
-//     await UserModel.findOne({
-//       transactionHistory: { $elemMatch: { reference } },
-//     });
-//   }
-
-//   async getUserTransactions(userId) {
-//     await UserModel.findById(userId).select('transactionHistory');
-//   }
