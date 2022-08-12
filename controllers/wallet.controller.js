@@ -257,7 +257,7 @@ const getBanksList = async (req, res) => {
   try {
     const wallet = new Wallet(req.email);
     const check = await wallet.getPaystackBankLists();
-    if (check) {
+    if (check[0]) {
       return responseHandler(
         res,
         'Bank list retrieved succesfully',
@@ -269,7 +269,7 @@ const getBanksList = async (req, res) => {
     return responseHandler(res, 'Unable to retrieve bank list', 400, true, '');
   } catch (error) {
     console.log(error);
-    return responseHandler(res, 'Unable to retrieve bank list', 500, true, '');
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
 
@@ -287,7 +287,7 @@ const verifyBankAccount = async (req, res) => {
       req.body.bank_code
     );
 
-    if (check[1]) {
+    if (check[0]) {
       return responseHandler(
         res,
         'Bank account details retrieved',
@@ -296,6 +296,7 @@ const verifyBankAccount = async (req, res) => {
         check[1]
       );
     }
+    return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
     console.log(error);
     return responseHandler(res, 'Unable to retrieve bank list', 500, true, '');

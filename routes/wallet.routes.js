@@ -32,5 +32,5 @@ router.get(
   getTransactionDetail
 );
 router.get('/wallet/banks', verifyUserToken, getBanksList);
-router.get('/wallet/banks/verify-account', verifyUserToken, verifyBankAccount);
+router.get('/wallet/bank/verify-account', verifyUserToken, verifyBankAccount);
 module.exports = router;

@@ -244,9 +244,12 @@ class Wallet {
         use_cursor: true,
         perPage: 100,
       });
-      return [true, banks.data];
+      if (banks) {
+        return [true, banks.data];
+      }
+      return [false];
     } catch (error) {
-      return [false, error];
+      return [false, error.error.message];
     }
   }
 
@@ -256,11 +259,13 @@ class Wallet {
         account_number,
         bank_code,
       });
-      console.log(accountDetails);
-      return [true, accountDetails.data];
+      if (accountDetails) {
+        return [true, accountDetails.data];
+      }
+      return [false];
     } catch (error) {
       console.log(error);
-      return [false, error.message];
+      return [false, error.error.message];
     }
   }
 }
