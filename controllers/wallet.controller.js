@@ -299,7 +299,35 @@ const verifyBankAccount = async (req, res) => {
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
     console.log(error);
-    return responseHandler(res, 'Unable to retrieve bank list', 500, true, '');
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
+  }
+};
+
+const withdrawFunds = async (req, res) => {
+  try {
+    // const { details } = await withdrawValidation(req.body);
+    // if (details) {
+    //   let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+    //   return responseHandler(res, allErrors, 400, true, '');
+    // }
+    const { fullName, accountNumber, bankCode, amount, reason, pin } = req.body;
+    const wallet = new Wallet(req.email);
+    const check = await wallet.initializeTransfer(
+      amount,
+      reason,
+      fullName,
+      accountNumber,
+      bankCode,
+      pin,
+      req.id
+    );
+    if (check[0]) {
+      return responseHandler(res, 'succesfull', 200, false, check[1]);
+    }
+    return responseHandler(res, check[1], 400, true, '');
+  } catch (error) {
+    console.log(error);
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
 
@@ -313,4 +341,5 @@ module.exports = {
   getTransactionDetail,
   getBanksList,
   verifyBankAccount,
+  withdrawFunds,
 };

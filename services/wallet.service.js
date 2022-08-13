@@ -268,6 +268,76 @@ class Wallet {
       return [false, error.error.message];
     }
   }
+
+  async #createTransferRecipient(fullName, account_number, bank_code) {
+    try {
+      const recipient = await Paystack.transfer_recipient.create({
+        type: 'nuban',
+        name: fullName,
+        account_number,
+        bank_code,
+        currency: 'NGN',
+      });
+      console.log(recipient);
+      if (recipient) {
+        return [true, recipient.data];
+      }
+    } catch (error) {
+      return [false, error.error.message];
+    }
+  }
+
+  async initializeTransfer(
+    amount,
+    reason,
+    fullName,
+    account_number,
+    bank_code,
+    pin,
+    userId
+  ) {
+    try {
+      // Create transaction recipient
+      const check = await this.#createTransferRecipient(
+        fullName,
+        account_number,
+        bank_code
+      );
+
+      //if transaction recipient is created
+      if (check[0]) {
+        //Validate transaction pin
+        if (!(await this.#validatePin(pin, userId))) {
+          return [false, 'Error - Incorrect transaction pin'];
+        }
+
+        //check if user has sufficient founds
+        if (
+          (await this.calculateWalletBalance(userId)) <=
+          Number(amount) + 100
+        ) {
+          return [false, 'Error - Insufficient funds'];
+        }
+
+        //Initiate paystack transfer request
+        const withdrawRequest = await Paystack.transfer.create({
+          source: 'balance',
+          amount: amount * 100,
+          recipient: check[1].recipient_code,
+          reason,
+        });
+        console.log(withdrawRequest);
+        if (withdrawRequest) {
+          return [true, withdrawRequest.data];
+        }
+      } else {
+        return [false, check[1] || 'Unable to resolve account number'];
+      }
+    } catch (error) {
+      console.log(error);
+      return [false, error.error.message || error];
+    }
+  }
 }
 
 module.exports = Wallet;
