@@ -38,7 +38,7 @@ class User {
       if (foundUser.isVendor && !foundUser.isVerifiedVendor) {
         return [false, 'vendor account is pending approval.'];
       }
-      if (await this.#validatePassword(password, foundUser.password)) {
+      if (await this.validatePassword(password, foundUser.password)) {
         return [true, await this.signJwt(foundUser._id)];
       }
       // return [false];
@@ -59,8 +59,7 @@ class User {
     return token;
   }
 
-  // Private method
-  async #validatePassword(formPassword, dbPassword) {
+  async validatePassword(formPassword, dbPassword) {
     return await bcrypt.compare(formPassword, dbPassword);
   }
 

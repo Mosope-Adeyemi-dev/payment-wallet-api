@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(corsOption);
 
 events.on('transfer.success', (data) => {
-  console.log(data);
+  console.log(data, 'transfer-successul');
 });
 
 // Hooks with Express

@@ -74,7 +74,6 @@ class Wallet {
       reference: uuidv4(),
       currency: 'NGN',
       subaccount: process.env.PAYSTACK_SUB_ACCT,
-      // bearer: 'subaccount',
     });
 
     if (!result) {
@@ -322,13 +321,27 @@ class Wallet {
         //Initiate paystack transfer request
         const withdrawRequest = await Paystack.transfer.create({
           source: 'balance',
-          amount: amount * 100,
+          amount: Number(amount) * 100 + 15 * 100, //Charge an extra 15 naira for processing fee.
           recipient: check[1].recipient_code,
           reason,
         });
-        console.log(withdrawRequest);
         if (withdrawRequest) {
-          return [true, withdrawRequest.data];
+          //Create trasaction record on DB
+          const newTransaction = new WalletModel({
+            transactionType: 'Withdrawal',
+            referenceId: withdrawRequest.data.reference,
+            operationType: 'Debit',
+            status: 'Success',
+            processingFees: 15 * 100,
+            amount: Number(amount) + 15,
+            comment: reason,
+            fundOriginatorAccount: userId,
+          });
+          if (await newTransaction.save()) {
+            return [true, newTransaction];
+            // return [true, withdrawRequest.data];
+          }
+          return [false, 'Error - unable to process withdraw request'];
         }
       } else {
         return [false, check[1] || 'Unable to resolve account number'];

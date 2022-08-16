@@ -2,6 +2,7 @@ const Wallet = require('../services/wallet.service');
 const { responseHandler } = require('../utils/responseHandler');
 const {
   fundWalletValidation,
+  withdrawValidation,
   transferFundsValidation,
   setPinValidation,
   verifyBankAccountValidation,
@@ -156,13 +157,7 @@ const setupTransactionPin = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
 
@@ -243,13 +238,7 @@ const getTransactionDetail = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
 
@@ -305,11 +294,11 @@ const verifyBankAccount = async (req, res) => {
 
 const withdrawFunds = async (req, res) => {
   try {
-    // const { details } = await withdrawValidation(req.body);
-    // if (details) {
-    //   let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
-    //   return responseHandler(res, allErrors, 400, true, '');
-    // }
+    const { details } = await withdrawValidation(req.body);
+    if (details) {
+      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+      return responseHandler(res, allErrors, 400, true, '');
+    }
     const { fullName, accountNumber, bankCode, amount, reason, pin } = req.body;
     const wallet = new Wallet(req.email);
     const check = await wallet.initializeTransfer(
@@ -322,7 +311,13 @@ const withdrawFunds = async (req, res) => {
       req.id
     );
     if (check[0]) {
-      return responseHandler(res, 'succesfull', 200, false, check[1]);
+      return responseHandler(
+        res,
+        'Withdrawal request has been queued.',
+        200,
+        false,
+        check[1]
+      );
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {

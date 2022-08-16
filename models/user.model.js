@@ -31,7 +31,6 @@ const UserSchema = new Schema(
       max: [4, 'Pin too long'],
     },
     username: { type: String },
-    // role: { type: String, enum: ['vendor', 'customer'], default: 'customer' },
     isVendor: { type: Boolean, default: false, required: true },
     offeredService: { type: String },
     isVerifiedVendor: { type: Boolean, default: false },

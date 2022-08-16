@@ -28,13 +28,7 @@ const signup = async (req, res) => {
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
 
@@ -61,13 +55,7 @@ const vendorSignup = async (req, res) => {
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    return responseHandler(
-      res,
-      'An error occured. Try again.',
-      500,
-      true,
-      error
-    );
+    return responseHandler(res, 'An error occured. Try again.', 500, true, '');
   }
 };
 
@@ -98,46 +86,9 @@ const login = async (req, res) => {
       ''
     );
   } catch (error) {
-    return responseHandler(
-      res,
-      'An error occured. Try again',
-      500,
-      true,
-      error
-    );
+    return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
-
-// const vendorLogin = async (req, res) => {
-//   try {
-//     const { details } = await loginValidation(req.body);
-//     if (details) {
-//       let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
-//       return responseHandler(res, allErrors, 400, true, '');
-//     }
-
-//     const { email, password } = req.body;
-//     const vendor = new Vendor(email);
-//     console.log(vendor, 'user');
-//     const check = await vendor.authenticateUser(password);
-
-//     if (check[0]) {
-//       res.cookie('token', check[1], { expiresIn: '1d', httpOnly: true });
-//       return responseHandler(res, 'login succesful', 201, false, {
-//         token: check[1],
-//       });
-//     }
-//     return responseHandler(res, check[1], 400, true, '');
-//   } catch (error) {
-//     return responseHandler(
-//       res,
-//       'An error occured. Try again',
-//       500,
-//       true,
-//       error
-//     );
-//   }
-// };
 
 module.exports = {
   signup,
