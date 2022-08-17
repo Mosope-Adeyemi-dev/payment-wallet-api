@@ -62,13 +62,45 @@ class Admin extends User {
     }
   }
 
-  async #findPendingVendors() {
+  async findPendingVendors() {
     try {
       const foundVendors = await UserModel.find({
         isVendor: true,
         isVerifiedVendor: false,
-      });
+      }).select(
+        'firstname lastname isVendor offeredService isVerifiedVendor createdAt updatedAt email'
+      );
       return [true, foundVendors];
+    } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
+  async findAllVendors() {
+    try {
+      const foundVendors = await UserModel.find({
+        isVendor: true,
+      }).select(
+        'firstname lastname isVendor offeredService isVerifiedVendor createdAt updatedAt email'
+      );
+      console.log(foundVendors);
+      return [true, foundVendors];
+    } catch (error) {
+      return [false, translateError(error)];
+    }
+  }
+
+  async approveVendor(vendorId, adminId) {
+    try {
+      const approvedVendor = await UserModel.findOneAndUpdate(
+        { id: vendorId },
+        {
+          isVerifiedVendor: true,
+          vendorApproverId: adminId,
+        },
+        { new: true }
+      );
+      return [true, approvedVendor];
     } catch (error) {
       return [false, translateError(error)];
     }

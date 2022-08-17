@@ -22,6 +22,17 @@ const adminLoginValidation = async (field) => {
   }
 };
 
+const approveVendorValidation = async (field) => {
+  const schema = Joi.object({
+    vendorId: Joi.string().required(),
+  });
+  try {
+    return await schema.validateAsync(field, { abortEarly: false });
+  } catch (err) {
+    return err;
+  }
+};
+
 const adminSignupValidation = async (field) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
@@ -41,4 +52,5 @@ module.exports = {
   inviteAdminValidation,
   adminLoginValidation,
   adminSignupValidation,
+  approveVendorValidation,
 };

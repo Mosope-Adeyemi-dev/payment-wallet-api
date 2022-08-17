@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema.Types;
 const { Schema } = mongoose;
 
 const bankAccountSchema = new mongoose.Schema({
@@ -34,6 +35,7 @@ const UserSchema = new Schema(
     isVendor: { type: Boolean, default: false, required: true },
     offeredService: { type: String },
     isVerifiedVendor: { type: Boolean, default: false },
+    vendorApproverId: { type: ObjectId, ref: 'Admin' },
   },
   {
     timestamps: true,

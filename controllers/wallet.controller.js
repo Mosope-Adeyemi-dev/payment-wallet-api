@@ -185,6 +185,7 @@ const getWalletBalance = async (req, res) => {
 const getTransactionHistory = async (req, res) => {
   try {
     const wallet = new Wallet(req.email);
+    console.log(req.id);
     const check = await wallet.getUserTransactions(req.id);
     if (check[0]) {
       return responseHandler(

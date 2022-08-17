@@ -4,9 +4,56 @@ const {
   inviteAdminValidation,
   adminSignupValidation,
   adminLoginValidation,
+  approveVendorValidation,
 } = require('../validations/admin.validations');
 const { responseHandler } = require('../utils/responseHandler');
 const Admin = require('../services/admin.service');
+
+// const bcrypt = require('bcrypt');
+// const AdminModel = require('../models/admin.model');
+// const { translateError } = require('../utils/mongo_helper');
+// const jwt = require('jsonwebtoken');
+
+// const createAdminDemo = async (req, res) => {
+//   const { firstname, lastname, email, password } = req.body;
+
+//   try {
+//     const superAdmin = new AdminModel({
+//       firstname,
+//       lastname,
+//       email,
+//       password: await hashedPassword(password),
+//     });
+//     if (await superAdmin.save()) {
+//       const token = await signJwt(superAdmin._id);
+//       res.cookie('token', token, { expiresIn: '1d', httpOnly: true });
+//       return responseHandler(res, 'Account succesffully created', 201, false, {
+//         token,
+//       });
+//       // return responseHandler(res, check[1], 400, true, '');
+//     }
+//   } catch (error) {
+//     return responseHandler(
+//       res,
+//       'An error occured. Try again',
+//       500,
+//       true,
+//       translateError(error)
+//     );
+//   }
+// };
+
+// const hashedPassword = async (password) => {
+//   const salt = await bcrypt.genSalt(15);
+//   return await bcrypt.hash(password, salt);
+// };
+
+// const signJwt = async (id) => {
+//   const token = jwt.sign({ id }, process.env.JWT_SECRET, {
+//     expiresIn: 60 * 60 * 24 * 30,
+//   });
+//   return token;
+// };
 
 const inviteAdmin = async (req, res) => {
   try {
@@ -117,7 +164,46 @@ const getPendingVendor = async (req, res) => {
   try {
     const admin = new Admin(req.email);
     const check = await admin.findPendingVendors();
+    if (check[0])
+      return responseHandler(
+        res,
+        'Pending vendors retrieved',
+        200,
+        false,
+        check[1]
+      );
+    return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
+    return responseHandler(res, 'An error occured', 500, true, '');
+  }
+};
+
+const getAllVendors = async (req, res) => {
+  try {
+    const admin = new Admin(req.email);
+    const check = await admin.findAllVendors();
+    if (check[0])
+      return responseHandler(res, 'Vendors retrieved', 200, false, check[1]);
+    return responseHandler(res, check[1], 400, true, '');
+  } catch (error) {
+    return responseHandler(res, 'An error occured', 500, true, '');
+  }
+};
+
+const approvePendingVendor = async (req, res) => {
+  try {
+    const { details } = await approveVendorValidation(req.body);
+    if (details) {
+      let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
+      return responseHandler(res, allErrors, 400, true, '');
+    }
+    const admin = new Admin(req.email);
+    const check = await admin.approveVendor(req.body.id, req.id);
+    if (check[0])
+      return responseHandler(res, 'Vendor account approved', 200, false, '');
+    return responseHandler(res, check[1], 400, true, '');
+  } catch (error) {
+    console.log(error);
     return responseHandler(res, 'An error occured', 500, true, '');
   }
 };
@@ -127,4 +213,7 @@ module.exports = {
   signupAdmin,
   login,
   getPendingVendor,
+  getAllVendors,
+  approvePendingVendor,
+  // createAdminDemo,
 };

@@ -216,8 +216,9 @@ class Wallet {
     try {
       const transactions = await WalletModel.find({
         $or: [{ fundRecipientAccount: id }, { fundOriginatorAccount: id }],
-        $or: [{ status: 'Success' }, { status: 'success' }],
+        // $or: [{ status: 'Success' }, { status: 'success' }],
       }).sort({ createdAt: -1 });
+      console.log(transactions);
       return [true, transactions];
     } catch (error) {
       return [false, translateError(error)];

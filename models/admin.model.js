@@ -8,8 +8,8 @@ const adminSchema = Schema(
     lastname: { type: String, trim: true },
     password: { type: String, trim: true },
     email: { type: String, required: true, trim: true, unique: true },
-    inviteToken: { type: String, required: true },
-    initiatorId: { type: ObjectId, ref: 'User', required: true },
+    inviteToken: { type: String },
+    initiatorId: { type: ObjectId, ref: 'User' },
   },
   { timestamps: true }
 );
