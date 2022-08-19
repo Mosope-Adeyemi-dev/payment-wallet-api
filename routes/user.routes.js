@@ -13,7 +13,7 @@ router.get(
   verifyUserToken,
   verifyAvailableUsername
 );
-router.get(
+router.post(
   '/user/profile/find-by-username',
   verifyUserToken,
   getUserDetailsByUsername

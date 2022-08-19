@@ -98,7 +98,6 @@ const getUserDetailsByUsername = async (req, res) => {
     }
     return responseHandler(res, check[1] || 'User not found', 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'An error occured. Try again',
@@ -125,7 +124,6 @@ const getAccountDetails = async (req, res) => {
     }
     return responseHandler(res, check[1] || 'User not found', 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'An error occured. Try again',

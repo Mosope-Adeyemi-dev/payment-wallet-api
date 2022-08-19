@@ -28,7 +28,6 @@ class User {
   async authenticateUser(password) {
     try {
       const foundUser = await UserModel.findOne({ email: this.email });
-      console.log(foundUser);
       if (!foundUser) {
         return [false];
       }
@@ -103,7 +102,6 @@ class User {
       }
       return [false];
     } catch (error) {
-      console.log(error);
       return [false, translateError(error)];
     }
   }
@@ -118,7 +116,6 @@ class User {
       }
       return [false];
     } catch (error) {
-      console.log(error);
       return [false, translateError(error)];
     }
   }

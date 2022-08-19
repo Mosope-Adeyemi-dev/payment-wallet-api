@@ -98,8 +98,6 @@ class Wallet {
       const result = await Paystack.transaction.verify({
         reference,
       });
-
-      console.log(result, 'result');
       if (!result) {
         return [false];
       }
@@ -113,7 +111,6 @@ class Wallet {
         totalProcessingFees,
         result.data.authorization
       );
-      console.log(updatedTransaction);
 
       if (updatedTransaction) {
         return [true, updatedTransaction];
@@ -182,7 +179,6 @@ class Wallet {
     let totalCredits = 0.0;
     let totalDebits = 0.0;
 
-    console.log(recipientTransactons, originatorTransactions);
     if (recipientTransactons && originatorTransactions) {
       recipientTransactons.forEach((transaction) => {
         if (
@@ -199,8 +195,6 @@ class Wallet {
           totalDebits = totalDebits + transaction.amount;
       });
     }
-    console.log(totalCredits - totalDebits, 'Wallet balance');
-    console.log(totalCredits, totalDebits, 'Credits, debits');
     return totalCredits - totalDebits;
   }
 
@@ -218,7 +212,6 @@ class Wallet {
         $or: [{ fundRecipientAccount: id }, { fundOriginatorAccount: id }],
         // $or: [{ status: 'Success' }, { status: 'success' }],
       }).sort({ createdAt: -1 });
-      console.log(transactions);
       return [true, transactions];
     } catch (error) {
       return [false, translateError(error)];
@@ -264,7 +257,6 @@ class Wallet {
       }
       return [false];
     } catch (error) {
-      console.log(error);
       return [false, error.error.message];
     }
   }
@@ -278,7 +270,6 @@ class Wallet {
         bank_code,
         currency: 'NGN',
       });
-      console.log(recipient);
       if (recipient) {
         return [true, recipient.data];
       }
@@ -348,7 +339,6 @@ class Wallet {
         return [false, check[1] || 'Unable to resolve account number'];
       }
     } catch (error) {
-      console.log(error);
       return [false, error.error.message || error];
     }
   }

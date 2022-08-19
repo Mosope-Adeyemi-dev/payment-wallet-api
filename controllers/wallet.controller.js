@@ -34,7 +34,6 @@ const fundWallet = async (req, res) => {
 
     return responseHandler(res, 'Initialization unsuccessful', 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'An error occured. Try again',
@@ -77,7 +76,6 @@ const verifyTransactionStatus = async (req, res) => {
       ''
     );
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -118,7 +116,6 @@ const transferFunds = async (req, res) => {
       ''
     );
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'An error occured. Try again',
@@ -156,7 +153,6 @@ const setupTransactionPin = async (req, res) => {
       ''
     );
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -171,7 +167,6 @@ const getWalletBalance = async (req, res) => {
       note: balance === 0 ? 'This user is broke lmao 👀' : null,
     });
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'Unable to retrieve wallet balance',
@@ -185,7 +180,6 @@ const getWalletBalance = async (req, res) => {
 const getTransactionHistory = async (req, res) => {
   try {
     const wallet = new Wallet(req.email);
-    console.log(req.id);
     const check = await wallet.getUserTransactions(req.id);
     if (check[0]) {
       return responseHandler(
@@ -197,7 +191,6 @@ const getTransactionHistory = async (req, res) => {
       );
     }
   } catch (error) {
-    console.log(error);
     return responseHandler(
       res,
       'Unable to retrieve transaction history',
@@ -238,7 +231,6 @@ const getTransactionDetail = async (req, res) => {
       ''
     );
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -258,7 +250,6 @@ const getBanksList = async (req, res) => {
     }
     return responseHandler(res, 'Unable to retrieve bank list', 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -288,7 +279,6 @@ const verifyBankAccount = async (req, res) => {
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -322,7 +312,6 @@ const withdrawFunds = async (req, res) => {
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };

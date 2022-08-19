@@ -58,7 +58,6 @@ const Admin = require('../services/admin.service');
 const inviteAdmin = async (req, res) => {
   try {
     const { details } = await inviteAdminValidation(req.body);
-    console.log(details);
     if (details) {
       let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
       return responseHandler(res, allErrors, 400, true, '');
@@ -91,7 +90,6 @@ const inviteAdmin = async (req, res) => {
           `,
       };
       const sentEmail = await transporter.sendMail(msg);
-      console.log(sentEmail);
       if (sentEmail)
         return responseHandler(res, 'Admin invitation sent', 201, false, '');
 
@@ -105,7 +103,6 @@ const inviteAdmin = async (req, res) => {
     }
     return responseHandler(res, newAdmin[1], 400, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -128,7 +125,6 @@ const signupAdmin = async (req, res) => {
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
@@ -203,7 +199,6 @@ const approvePendingVendor = async (req, res) => {
       return responseHandler(res, 'Vendor account approved', 200, false, '');
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {
-    console.log(error);
     return responseHandler(res, 'An error occured', 500, true, '');
   }
 };

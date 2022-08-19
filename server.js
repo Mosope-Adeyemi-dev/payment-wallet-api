@@ -4,8 +4,6 @@ const morgan = require('morgan');
 const { readdirSync } = require('fs');
 const { connectDB, closeDBConnection } = require('./config/db');
 const { exit } = require('process');
-const Paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
-const events = Paystack.Events;
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -17,12 +15,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(corsOption);
 
-events.on('transfer.success', (data) => {
-  console.log(data, 'transfer-successul');
-});
-
-// Hooks with Express
-app.post('/webhook/withdraw', events.middleware);
 //routes
 app.get('/', (req, res) => {
   res.send('BU PayWallet API server running');

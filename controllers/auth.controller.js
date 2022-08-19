@@ -18,7 +18,6 @@ const signup = async (req, res) => {
 
     const user = new User(email);
     const check = await user.createAccount(firstname, lastname, password);
-    console.log(check, 'check');
 
     if (check[0]) {
       res.cookie('token', check[1], { expiresIn: '1d', httpOnly: true });
@@ -48,7 +47,6 @@ const vendorSignup = async (req, res) => {
       password,
       offeredService
     );
-    console.log(vendor, 'vendor');
 
     if (check[0]) {
       return responseHandler(res, 'vendor signup succesful.', 201, false);
@@ -69,7 +67,6 @@ const login = async (req, res) => {
 
     const { email, password } = req.body;
     const user = new User(email);
-    console.log(user, 'user');
     const check = await user.authenticateUser(password);
 
     if (check[0]) {

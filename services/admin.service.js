@@ -49,7 +49,6 @@ class Admin extends User {
   async authenticateAdmin({ password, email }) {
     try {
       const foundAdmin = await AdminModel.findOne({ email });
-      console.log(foundAdmin);
       if (!foundAdmin) {
         return [false];
       }
@@ -83,7 +82,6 @@ class Admin extends User {
       }).select(
         'firstname lastname isVendor offeredService isVerifiedVendor createdAt updatedAt email'
       );
-      console.log(foundVendors);
       return [true, foundVendors];
     } catch (error) {
       return [false, translateError(error)];
