@@ -16,7 +16,8 @@ const transferFundsValidation = async (field) => {
     pin: Joi.string().min(4).max(4).required(),
     amount: Joi.number().required(),
     comment: Joi.string(),
-    recipientAccountTag: Joi.string().min(6).required(),
+    recipientAccountTag: Joi.string().min(5).required(),
+    senderTag: Joi.string().min(5).required(),
   });
   try {
     return await schema.validateAsync(field, { abortEarly: false });

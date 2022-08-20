@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const Paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
 const { translateError } = require('../utils/mongo_helper');
 const { v4: uuidv4 } = require('uuid');
@@ -127,7 +128,8 @@ class Wallet {
     amount,
     fundRecipientAccountTag,
     comment,
-    fundOriginatorAccount
+    fundOriginatorAccount,
+    senderTag
   ) {
     const foundRecipient = await UserModel.findOne({
       username: fundRecipientAccountTag,
@@ -155,6 +157,8 @@ class Wallet {
         status: 'Success',
         referenceId: uuidv4(),
         comment,
+        recepientTag: fundRecipientAccountTag,
+        senderTag,
       });
 
       if (await newTransaction.save()) {
@@ -328,6 +332,7 @@ class Wallet {
             amount: Number(amount) + 15,
             comment: reason,
             fundOriginatorAccount: userId,
+            bankDetails: check[1].details,
           });
           if (await newTransaction.save()) {
             return [true, newTransaction];

@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 const setupTagValidation = async (field) => {
   const schema = Joi.object({
-    accountTag: Joi.string().min(6).required(),
+    accountTag: Joi.string().min(5).required(),
   });
   try {
     return await schema.validateAsync(field, { abortEarly: false });
@@ -12,7 +12,7 @@ const setupTagValidation = async (field) => {
 };
 const getUserDetailsByUsernameValidation = async (field) => {
   const schema = Joi.object({
-    accountTag: Joi.string().min(6).required(),
+    accountTag: Joi.string().min(5).required(),
   });
   try {
     return await schema.validateAsync(field, { abortEarly: false });

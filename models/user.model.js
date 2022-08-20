@@ -23,7 +23,10 @@ const UserSchema = new Schema(
       required: true,
       trim: true,
     },
-    photo: String,
+    photo: {
+      type: String,
+      default: 'https://cdn-icons-png.flaticon.com/512/17/17004.png',
+    },
     bankAccounts: [bankAccountSchema],
     pin: {
       type: String,

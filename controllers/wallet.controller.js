@@ -88,14 +88,15 @@ const transferFunds = async (req, res) => {
       let allErrors = details.map((detail) => detail.message.replace(/"/g, ''));
       return responseHandler(res, allErrors, 400, true, '');
     }
-    const { pin, amount, recipientAccountTag, comment } = req.body;
+    const { pin, amount, recipientAccountTag, comment, senderTag } = req.body;
     const wallet = new Wallet(req.email);
     const check = await wallet.transferFund(
       pin,
       amount,
       recipientAccountTag,
       comment,
-      req.id
+      req.id,
+      senderTag
     );
 
     if (check[0]) {

@@ -34,6 +34,9 @@ const WalletSchema = new Schema(
     referenceId: { type: String, unique: true, required: true },
     authorization: { type: Object },
     comment: { type: String },
+    recepientTag: { type: String },
+    senderTag: { type: String },
+    bankDetails: { type: Object },
   },
   {
     timestamps: true,
