@@ -14,19 +14,13 @@ const {
 const { verifyUserToken } = require('../middlewares/auth.middleware');
 const { isVerifiedVendor } = require('../middlewares/vendor.middleware');
 
-router.post('/wallet/fund', verifyUserToken, isVerifiedVendor, fundWallet);
+router.post('/wallet/fund', verifyUserToken, fundWallet);
 router.get(
   '/wallet/verify-transaction',
   verifyUserToken,
-  isVerifiedVendor,
   verifyTransactionStatus
 );
-router.post(
-  '/wallet/transfer-fund',
-  verifyUserToken,
-  isVerifiedVendor,
-  transferFunds
-);
+router.post('/wallet/transfer-fund', verifyUserToken, transferFunds);
 router.put('/wallet/pin/set', verifyUserToken, setupTransactionPin);
 router.get('/wallet/balance', verifyUserToken, getWalletBalance);
 router.get(
@@ -37,20 +31,9 @@ router.get(
 router.get(
   '/wallet/transaction-history/:transactionId',
   verifyUserToken,
-  isVerifiedVendor,
   getTransactionDetail
 );
-router.get('/wallet/banks', verifyUserToken, isVerifiedVendor, getBanksList);
-router.post(
-  '/wallet/bank/verify-account',
-  verifyUserToken,
-  isVerifiedVendor,
-  verifyBankAccount
-);
-router.post(
-  '/wallet/withdraw',
-  verifyUserToken,
-  isVerifiedVendor,
-  withdrawFunds
-);
+router.get('/wallet/banks', verifyUserToken, getBanksList);
+router.post('/wallet/bank/verify-account', verifyUserToken, verifyBankAccount);
+router.post('/wallet/withdraw', verifyUserToken, withdrawFunds);
 module.exports = router;
