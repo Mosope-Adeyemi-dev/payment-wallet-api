@@ -49,7 +49,9 @@ const vendorSignup = async (req, res) => {
     );
 
     if (check[0]) {
-      return responseHandler(res, 'vendor signup succesful.', 201, false);
+      return responseHandler(res, 'vendor signup succesful.', 201, false, {
+        token: check[1],
+      });
     }
     return responseHandler(res, check[1], 400, true, '');
   } catch (error) {

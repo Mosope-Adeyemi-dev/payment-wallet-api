@@ -20,7 +20,7 @@ class Vendor extends User {
         isVendor: true,
       });
       if (await newVendor.save()) {
-        return [true, newVendor];
+        return [true, await this.signJwt(newVendor._id), newVendor];
       }
     } catch (error) {
       return [false, translateError(error)];
