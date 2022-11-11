@@ -3,6 +3,7 @@ module.exports = (req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000', //frontend preview link
     'https://rave-pay.vercel.app',
+    'https://retropay.vercel.app',
   ];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {

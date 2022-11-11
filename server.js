@@ -3,7 +3,6 @@ const express = require('express');
 const morgan = require('morgan');
 const { readdirSync } = require('fs');
 const { connectDB, closeDBConnection } = require('./config/db');
-const { exit } = require('process');
 
 const app = express();
 const port = process.env.PORT || 4000;

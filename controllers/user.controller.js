@@ -15,6 +15,7 @@ const setupAccountTag = async (req, res) => {
 
     const user = new User(req.email);
     const check = await user.updateUsername(req.id, req.body.accountTag);
+
     if (check[0]) {
       return responseHandler(
         res,
