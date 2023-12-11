@@ -1,13 +1,9 @@
 const mongoose = require('mongoose');
 
-const uri =
-  process.env.NODE_ENV === 'production'
-    ? process.env.MONGODB_URI_CLOUD
-    : process.env.MONGODB_URI;
-
 exports.connectDB = async () => {
+  mongoose.set('strictQuery', true);
   await mongoose
-    .connect(uri, {
+    .connect(process.env.MONGODB_URI_CLOUD, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
