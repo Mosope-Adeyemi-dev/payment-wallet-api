@@ -29,7 +29,7 @@ class User {
     try {
       const foundUser = await UserModel.findOne({ email: this.email });
       if (!foundUser) {
-        return [false];
+        return [false, 'Incorrect email or password'];
       }
       /* this is to check if the vendor account has been approved by admin,
        * if they haven't been approved they wouldn't be able to login into their accounts.
@@ -37,11 +37,14 @@ class User {
       if (foundUser.isVendor && !foundUser.isVerifiedVendor) {
         return [false, 'vendor account is pending approval.'];
       }
+
       if (await this.validatePassword(password, foundUser.password)) {
         return [true, await this.signJwt(foundUser._id)];
       }
-      // return [false];
+
+      return [false, 'Incorrect email or password'];
     } catch (error) {
+      console.log(error);
       return [false, translateError(error)];
     }
   }

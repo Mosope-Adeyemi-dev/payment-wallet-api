@@ -70,6 +70,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = new User(email);
     const check = await user.authenticateUser(password);
+    console.log(check);
 
     if (check[0]) {
       res.cookie('token', check[1], { expiresIn: '1d', httpOnly: true });
@@ -85,6 +86,7 @@ const login = async (req, res) => {
       ''
     );
   } catch (error) {
+    console.log(error);
     return responseHandler(res, 'An error occured. Try again', 500, true, '');
   }
 };
